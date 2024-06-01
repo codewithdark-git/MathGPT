@@ -65,3 +65,5 @@ def main():
     st.write("Created by [Your Name]")
 
 
+if __name__ == "__main__":
+    main()
