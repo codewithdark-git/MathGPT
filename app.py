@@ -1,69 +1,83 @@
 import streamlit as st
-import sympy as sp
-import spacy
+import numpy as np
+from utils.helper import (
+    solve_math_problem, process_whiteboard_image, 
+    process_uploaded_file, query_document, MATH_SYMBOLS
+)
 
-# Load the NLP model
-nlp = spacy.load('en_core_web_sm')
-
-
-# Function to parse and solve math problems
-def extract_math_expressions(problem):
-    doc = nlp(problem)
-    expressions = []
-    for sent in doc.sents:
-        tokens = [token.text for token in sent if token.like_num or token.pos_ in {'NOUN', 'VERB', 'NUM', 'SYM'}]
-        if tokens:
-            expressions.append(' '.join(tokens))
-    return expressions
-
-
-def solve_math_problem(problem):
-    try:
-        expressions = extract_math_expressions(problem)
-        if not expressions:
-            return None, "No valid mathematical expression found."
-
-        results = []
-        for expr in expressions:
-            sympy_expr = sp.sympify(expr)
-            solution = sp.simplify(sympy_expr)
-            results.append((sympy_expr, solution))
-
-        return results, None
-    except Exception as e:
-        return None, str(e)
-
-
-# Streamlit app setup
 def main():
-    st.title("Advanced Math Problem Solver Bot")
+    st.title("Advanced Math Problem Solver")
 
-    st.markdown("## Enter your math problem")
-    math_problem = st.text_area("Describe your math problem:", height=150)
+    # Sidebar for navigation
+    page = st.sidebar.selectbox("Choose a feature", ["Whiteboard", "Math Input", "File Upload & Chat"])
+
+    if page == "Whiteboard":
+        whiteboard_page()
+    elif page == "Math Input":
+        math_input_page()
+    elif page == "File Upload & Chat":
+        file_upload_and_chat_page()
+
+def whiteboard_page():
+    st.header("Whiteboard")
+    
+    # Use Streamlit's drawing component
+    canvas_result = st.empty()
+    if st.button("Solve from Whiteboard"):
+        if canvas_result.image:
+            # Process the whiteboard image
+            problem = process_whiteboard_image(canvas_result.image)
+            st.write("Detected problem:", problem)
+            
+            # Solve the problem
+            solution = solve_math_problem(problem)
+            st.write("Solution:", solution)
+        else:
+            st.write("Please draw something on the whiteboard first.")
+
+def math_input_page():
+    st.header("Math Input")
+    
+    # Advanced Math Keyboard
+    st.subheader("Advanced Math Keyboard")
+    cols = st.columns(4)
+    for i, symbol in enumerate(MATH_SYMBOLS):
+        if cols[i % 4].button(symbol):
+            st.session_state.math_input = st.session_state.get('math_input', '') + symbol
+
+    math_input = st.text_input("Enter your math problem:", value=st.session_state.get('math_input', ''))
+    st.session_state.math_input = math_input
 
     if st.button("Solve"):
-        if math_problem.strip():
-            solutions, error = solve_math_problem(math_problem)
-            st.markdown("### Solution")
-            if solutions:
-                for i, (expr, solution) in enumerate(solutions):
-                    st.write(f"**Expression {i + 1}:** {expr}")
-                    st.write(f"**Simplified Solution {i + 1}:** {solution}")
-            else:
-                st.error(f"Error: {error}")
-        else:
-            st.error("Please enter a math problem to solve")
+        solution = solve_math_problem(math_input)
+        st.write("Solution:", solution)
 
-    st.markdown("## How to Use")
-    st.write("Describe your math problem in the text area above and click on the 'Solve' button.")
+def file_upload_and_chat_page():
+    st.header("File Upload & Chat")
+    uploaded_file = st.file_uploader("Choose a file", type=["pdf", "txt"])
+    
+    if uploaded_file is not None:
+        # Process the uploaded file
+        with st.spinner("Processing file..."):
+            vectorstore = process_uploaded_file(uploaded_file)
+        st.success("File uploaded and processed successfully!")
 
-    st.markdown("## About")
-    st.write(
-        "This advanced bot uses NLP and SymPy to solve mathematical problems. It can handle basic arithmetic, algebra, and calculus problems with natural language input.")
+        # Chat interface
+        st.subheader("Chat with your document")
+        
+        if 'chat_history' not in st.session_state:
+            st.session_state.chat_history = []
 
-    st.markdown("## Footer")
-    st.write("Created by [Your Name]")
+        for message in st.session_state.chat_history:
+            st.write(f"{'You' if message['is_user'] else 'AI'}: {message['text']}")
 
+        user_question = st.text_input("Ask a question about the uploaded document:")
+        if st.button("Ask"):
+            with st.spinner("Thinking..."):
+                answer = query_document(vectorstore, user_question)
+            st.session_state.chat_history.append({"text": user_question, "is_user": True})
+            st.session_state.chat_history.append({"text": answer, "is_user": False})
+            st.experimental_rerun()
 
 if __name__ == "__main__":
     main()
