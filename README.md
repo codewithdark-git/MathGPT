@@ -1,8 +1,8 @@
-# Advanced Math Problem Solver
+# MathGPT
 
 ## Overview
 
-The **Advanced Math Problem Solver** is a web application built with Streamlit that allows users to input mathematical problems and receive solutions. The app supports both text and LaTeX input, making it versatile for various mathematical expressions. Users can also visualize functions and access a history of their solved problems.
+The **MathGPT** is a web application built with Streamlit that allows users to input mathematical problems and receive solutions. The app supports both text and LaTeX input, making it versatile for various mathematical expressions. Users can also visualize functions and access a history of their solved problems.
 
 ## Features
 
