@@ -96,10 +96,15 @@ def main():
     # Feedback section
     st.subheader("Feedback")
     st.write("""
-    We appreciate your feedback! Use the feedback section in the sidebar to share your thoughts or report issues.
-    """)
+    We value your input! Help us improve the functionality of MathGPT or suggest new features you'd like to see.
+    If you have any questions, queries, or suggestions for improvement, feel free to contact us directly via email.
 
-    # License
+    **For feedback or inquiries, email us at:** 
+    [codewithdark90@gmail.com](mailto:codewithdark90@gmail.com.com)
+
+    """) # Add your Email Aisha if You want to 
+
+   # License
     st.subheader("License")
     st.write("""
     This project is licensed under the MIT License. See the LICENSE file for details.
