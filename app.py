@@ -1,201 +1,129 @@
 import streamlit as st
-from utils.llm import generate_response
-from utils.symbols import MATH_SYMBOLS
-from utils.plotting import plot_function
-import latex2mathml.converter
-from streamlit_drawable_canvas import st_canvas
-import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
-
-# CSS for custom UI styling
-def add_custom_css():
-    st.markdown("""
-        <style>
-            body {
-                font-family: 'Arial', sans-serif;
-                background-color: #f0f0f5;
-            }
-            .stButton>button {
-                background-color: #4CAF50;
-                color: white;
-                border: none;
-                padding: 10px 20px;
-                border-radius: 5px;
-            }
-            .stButton>button:hover {
-                background-color: #45a049;
-            }
-            .stTextInput>div>input {
-                border: 1px solid #ccc;
-                border-radius: 5px;
-                padding: 10px;
-            }
-            .main-title {
-                font-size: 32px;
-                color: #333;
-                text-align: center;
-                font-weight: bold;
-                margin-bottom: 20px;
-            }
-            .main-container {
-                background-color: #fff;
-                padding: 20px;
-                border-radius: 10px;
-                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            }
-        </style>
-    """, unsafe_allow_html=True)
-
-def render_latex(latex):
-    return latex2mathml.converter.convert(latex)
-
-
-
-def symbol_button(symbol, key):
-    if st.button(symbol, key=key, help=f"Insert {symbol}"):
-        st.session_state.math_input = st.session_state.get('math_input', '') + symbol
-
-def math_keyboard():
-    st.write("**Math Keyboard**")
-    with st.expander('Math Keyboard Symbols'):
-        categories = list(MATH_SYMBOLS.keys())
-        tabs = st.tabs(categories)
-
-        for tab, category in zip(tabs, categories):
-            with tab:
-                symbols = MATH_SYMBOLS[category]
-                cols = st.columns(8)
-                for i, symbol in enumerate(symbols):
-                    with cols[i % 8]:
-                        symbol_button(symbol, f"{category}_{symbol}")
-
-# Function to plot drawable whiteboard and math input
-def draw_whiteboard():
-    st.header("Whiteboard")
-    
-    # Initialize drawable canvas
-    canvas_result = st_canvas(
-        fill_color="rgba(255, 165, 0, 0.1)",
-        stroke_width=2,
-        background_color="#fff",
-        height=200,
-        width=700,
-        drawing_mode="freedraw",
-        point_display_radius=0,
-        update_streamlit=True,
-        key="canvas"
-    )
-
-    if canvas_result.image_data is not None:
-        st.image(canvas_result.image_data)
-    
-    return canvas_result.image_data
-
-# Enhanced math input page
-def math_input_page():
-    st.write('<div class="main-title">Advanced Math Problem Solver</div>', unsafe_allow_html=True)
-    st.write('<div class="main-container">', unsafe_allow_html=True)
-
-    st.write("""
-    Welcome to the Advanced Math Problem Solver! Here's how to use this app:
-    1. Write your problem on the whiteboard or use 'Text Input' or 'LaTeX Input' tabs.
-    2. Use the Math Keyboard to easily input mathematical symbols.
-    3. Click 'Solve' to get the solution or 'Plot Function' to visualize it.
-    """)
-
-    draw_whiteboard()
-
-    math_keyboard()
-
-    # Tabs for different input methods
-    tab1, tab2 = st.tabs(["Text Input", "LaTeX Input"])
-
-    with tab1:
-        math_input = st.text_input("Enter your math problem:", value=st.session_state.get('math_input', ''),
-                                help="Type or use the Math Keyboard to input your problem")
-        st.session_state.math_input = math_input
-
-    with tab2:
-        latex_input = st.text_area("Enter LaTeX:", value=st.session_state.get('latex_input', ''),
-                                help="Enter your mathematical expression in LaTeX format")
-        st.session_state.latex_input = latex_input
-        if latex_input:
-            st.write("Preview:")
-            st.write(render_latex(latex_input))
-
-    solve_col, plot_col = st.columns(2)
-    with solve_col:
-        solve_button = st.button("Solve", help="Click to solve the problem", use_container_width=True)
-    with plot_col:
-        plot_button = st.button("Plot Function", help="Click to plot the function", use_container_width=True)
-
-    if solve_button:
-        input_to_solve = math_input if tab1 else latex_input
-        if input_to_solve:
-            with st.spinner("Solving the problem..."):
-                solution = generate_response(input_to_solve)
-                st.subheader("Solution:")
-                st.write(solution)
-
-                # Try to render the solution as LaTeX
-                try:
-                    st.write("LaTeX rendering:")
-                    st.write(render_latex(solution))
-                except:
-                    st.write("(Unable to render solution as LaTeX)")
-
-                # Offer step-by-step explanation
-                if st.button("Show step-by-step explanation"):
-                    explanation = generate_response(f"Explain the solution to {input_to_solve} step by step")
-                    st.write(explanation)
-        else:
-            st.warning("Please enter a math problem first.")
-
-    if plot_button:
-        input_to_plot = math_input if tab1.active else latex_input
-        if input_to_plot:
-            fig = plot_function(input_to_plot)
-            if fig:
-                st.pyplot(fig)
-        else:
-            st.warning("Please enter a function to plot.")
-
-    # History feature
-    if 'history' not in st.session_state:
-        st.session_state.history = []
-
-    if solve_button or plot_button:
-        current_problem = math_input if tab1 else latex_input
-        st.session_state.history.append(current_problem)
-
-    with st.expander("Problem History"):
-        if st.session_state.history:
-            for i, problem in enumerate(st.session_state.history):
-                st.write(f"{i + 1}. {problem}")
-        else:
-            st.write("No problems solved yet. Your history will appear here.")
-
-    st.write('</div>', unsafe_allow_html=True)
 
 def main():
-    st.set_page_config(page_title="Advanced Math Problem Solver", page_icon="🧮", layout="wide")
-    add_custom_css()
-    math_input_page()
 
-    # Sidebar for settings and info
-    with st.sidebar:
-        st.subheader("Settings")
-        st.selectbox("Theme", ["Light", "Dark"], help="Choose the app theme")
-        st.checkbox("Enable animations", help="Toggle animations in the app")
+    st.markdown(
+        """
+        <style>
+        .title {
+            font-size: 50px;
+            font-weight: bold;
+            color: #4F8BF9;  /* Optional: Change color */
+            text-align: center;
+            margin-bottom: 0px;
+        }
+        .subtitle {
+            font-size: 30px;
+            font-weight: lighter;
+            color: #333;  /* Optional: Change color */
+            text-align: center;
+            margin-top: 0px;
+        }
 
-        st.subheader("About")
-        st.info("This app uses advanced AI to solve and explain mathematical problems. It can handle a wide range of topics including algebra, calculus, and more.")
+        .developer {
+        font-size: 15px;
+        font-weight: lighter;
+        color: #777;
+        text-align: center;
+        position: fixed;
+        bottom: 10px;
+        width: 100%;
+        }
+        .developer a {
+            color: #4F8BF9;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .developer a:hover {
+            text-decoration: underline;
+        }
+        .emoji {
+            font-size: 20px;
+            margin-left: 5px;
+        }
+        </style>
+        """, unsafe_allow_html=True
+    )
 
-        st.subheader("Feedback")
-        feedback = st.text_area("Leave your feedback here:", help="We appreciate your feedback!")
-        if st.button("Submit Feedback"):
-            st.success("Thank you for your feedback!")
+    # Add the title and subtitle
+    st.markdown('<div class="title">MathGPT</div>', unsafe_allow_html=True)
+    st.markdown('<div class="subtitle">Your Advanced Math Problem Solver</div>', unsafe_allow_html=True)
 
-if __name__ == "__main__":
+    st.divider()
+    
+    st.write('Choose Your Choice 🪧:')
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        if st.button('Solve Question With LLM'):
+            st.switch_page("pages/Solve Question.py")
+    with col2:
+        if st.button('File Question'):
+            st.switch_page("pages/File Process.py")
+    with col3:
+        if st.button('White Board'):
+            st.switch_page("pages/White Board.py")
+
+    # Overview description
+    st.write("""
+    **MathGPT** is a web application built with Streamlit that allows users to input mathematical problems and receive solutions. The app supports both text and LaTeX input, making it versatile for various mathematical expressions. Users can also visualize functions and access a history of their solved problems.
+    """)
+
+    # Features section
+    st.subheader("Features")
+    st.write("""
+    - **Upload File**: Upload images or PDF files containing math problems.
+    - **Select OR Draw**: Draw a box around the text or equation you want to OCR.
+    - **Input Methods**: Choose between text input and LaTeX input for entering mathematical problems.
+    - **Math Keyboard**: A user-friendly math keyboard for easy symbol insertion.
+    - **Problem Solving**: Click "Solve" to get solutions for your math problems.
+    - **Function Plotting**: Visualize mathematical functions with the "Plot Function" feature.
+    - **History Tracking**: Keep track of previously solved problems.
+    - **Step-by-Step Explanations**: Get detailed explanations for solutions.
+    """)
+
+    # Usage instructions
+    st.subheader("Usage")
+    st.write("""
+    1. **Open the app**: After running the application, it will open in your default web browser.
+    2. **Upload File**: After the model loads, upload an image or a PDF.
+    3. **Select OR Draw**: Draw a box around the equation or text you want to OCR by clicking and dragging.
+    4. **Input your problem**: Use the "Text Input" or "LaTeX Input" tabs to enter your mathematical problem.
+    5. **Use the Math Keyboard**: Click on symbols to insert them into your input.
+    6. **Solve or Plot**: Click "Solve" to get the solution or "Plot Function" to visualize the function.
+    7. **View History**: Access the "Problem History" section to see previously solved problems.
+    """)
+
+    # Feedback section
+    st.subheader("Feedback")
+    st.write("""
+    We appreciate your feedback! Use the feedback section in the sidebar to share your thoughts or report issues.
+    """)
+
+    # License
+    st.subheader("License")
+    st.write("""
+    This project is licensed under the MIT License. See the LICENSE file for details.
+    """)
+
+    # Acknowledgments
+    st.subheader("Acknowledgments")
+    st.write("""
+    - **Streamlit** for the framework.
+    - **latex2mathml** for LaTeX rendering.
+    - **Pandas** for data manipulation.
+    - **Pillow** for image processing.
+    - **Texify** for image and PDF Processing.
+    """)
+
+    st.markdown(
+    """
+    <div class="developer">
+        Developed by <a href="https://github.com/codewithdark-git" target="_blank">Codewithdark</a> & 
+        <a href="https://github.com/aisha-iftikhar" target="_blank">Aisha Iftikhar</a>
+        <span class="emoji">🚀</span>
+    </div>
+    """, unsafe_allow_html=True
+)
+
+if __name__ == '__main__':
     main()
