@@ -1,8 +1,12 @@
+# ===========================================
+# IMPORTANT: Do not delete this file.
+# This file is necessary for the application.
+# ===========================================
+
 import os
 os.environ["PYTORCH_ENABLE_MPS_FALLBACK"] = "1"  # For MPS fallback
-'''
-Don`t Delete This File 
-'''
+
+
 import io
 import pandas as pd
 import streamlit as st
@@ -18,6 +22,8 @@ from utils.llm import generate_response  # Import LLM response function
 
 MAX_WIDTH = 800
 MAX_HEIGHT = 1000
+
+
 
 @st.cache_resource()
 def load_model_cached():
@@ -74,6 +80,7 @@ def get_image_size(pil_image):
     return height, width
 
 st.set_page_config(layout="wide")
+
 
 # Display the instructions at the top
 st.markdown("""### Texify
