@@ -21,13 +21,13 @@ def main():
         }
 
         .developer {
-        font-size: 15px;
-        font-weight: lighter;
-        color: #777;
-        text-align: center;
-        position: fixed;
-        bottom: 10px;
-        width: 100%;
+            font-size: 15px;
+            font-weight: lighter;
+            color: #777;
+            text-align: center;
+            position: fixed;
+            bottom: 10px;
+            width: 100%;
         }
         .developer a {
             color: #4F8BF9;
