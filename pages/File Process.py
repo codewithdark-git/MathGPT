@@ -4,34 +4,29 @@
 # ===========================================
 
 import os
+
+from utils.load_model import load_modelANDprocessor
 os.environ["PYTORCH_ENABLE_MPS_FALLBACK"] = "1"  # For MPS fallback
 
 
 import io
-import pandas as pd
-import streamlit as st
-from streamlit_drawable_canvas import st_canvas
 import hashlib
 import pypdfium2
-from texify.inference import batch_inference
-from texify.model.model import load_model
-from texify.model.processor import load_processor
-from texify.output import replace_katex_invalid
+import pandas as pd
+import streamlit as st
 from PIL import Image
-from utils.llm import generate_response  # Import LLM response function
+
+from texify.inference import batch_inference
+from texify.output import replace_katex_invalid
+from streamlit_drawable_canvas import st_canvas
+
+from utils.load_model import load_modelANDprocessor
+from utils.llm import generate_response
+from utils.prompting import prompt_FP
 
 MAX_WIDTH = 800
 MAX_HEIGHT = 1000
 
-
-
-@st.cache_resource()
-def load_model_cached():
-    return load_model()
-
-@st.cache_resource()
-def load_processor_cached():
-    return load_processor()
 
 @st.cache_data()
 def infer_image(pil_image, bbox, temperature):
@@ -95,8 +90,7 @@ Upload an image or a PDF, then draw a box around the equation or text you want t
 
 
 # Load the model and processor
-model = load_model_cached()
-processor = load_processor_cached()
+model , processor = load_modelANDprocessor()
 
 # File uploader for PDF or image
 in_file = st.sidebar.file_uploader("PDF file or image:", type=["pdf", "png", "jpg", "jpeg", "gif", "webp"])
@@ -154,3 +148,10 @@ if canvas_result.json_data is not None:
             katex_markdown = replace_katex_invalid(inference)
             st.markdown(katex_markdown)
             st.code(inference)
+
+        # generate response from llm
+        solution = prompt_FP(inferences)
+        fin_response = generate_response(solution)
+
+        st.write(f'Solution {fin_response}')
+        st.divider()
