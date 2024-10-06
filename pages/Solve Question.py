@@ -1,7 +1,9 @@
+import scipy as sp
 import streamlit as st
 from utils.llm import generate_response
 from utils.symbols import MATH_SYMBOLS
 from utils.plotting import plot_function
+from utils.prompting import prompt_SQ, prompt_StepByStep
 import latex2mathml.converter
 
 def render_latex(latex):
@@ -64,7 +66,8 @@ def math_input_page():
         input_to_solve = math_input if tab1 else latex_input
         if input_to_solve:
             with st.spinner("Solving the problem..."):
-                solution = generate_response(input_to_solve)
+                solution = prompt_SQ(input_to_solve)
+                fin_response = generate_response(solution)
                 st.subheader("Solution:")
                 st.write(solution)
 
@@ -77,7 +80,8 @@ def math_input_page():
 
                 # Offer step-by-step explanation
                 if st.button("Show step-by-step explanation"):
-                    explanation = generate_response(f"Explain the solution to {input_to_solve} step by step")
+                    sp_by_sp = prompt_StepByStep(input_to_solve)
+                    explanation = generate_response(sp_by_sp)
                     st.write(explanation)
         else:
             st.warning("Please enter a math problem first.")
