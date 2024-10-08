@@ -1,5 +1,5 @@
 ########################################
-# Here we control all of the Prompts for LLM response
+# LLM Prompt Controller for Math Solutions
 ########################################
 
 # Function to generate a prompt from extracted text on the whiteboard
