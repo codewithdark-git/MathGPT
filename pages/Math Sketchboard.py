@@ -5,30 +5,12 @@
 import streamlit as st
 import numpy as np
 from PIL import Image
-from texify.inference import batch_inference
-from texify.output import replace_katex_invalid
 from streamlit_drawable_canvas import st_canvas
-from utils.load_model import load_modelANDprocessor
 from utils.llm import generate_response
-from utils.prompting import prompt_WB, prompt_StepByStep
+from utils.prompting import prompt_WB
 
 
-# Load the model and processor
-model, processor = load_modelANDprocessor()
 
-@st.cache_data()
-def infer_whole_image(pil_image, temperature):
-    # Use the entire image for inference by setting bbox to the full image dimensions
-    bbox = (0, 0, pil_image.width, pil_image.height)
-    model_output = batch_inference([pil_image.crop(bbox)], model, processor, temperature=temperature)
-    return model_output[0]
-
-# Process whiteboard image function
-def process_whiteboard_image(image, temperature=0.7):
-    # Process the entire whiteboard image (no bounding box needed)
-    output = infer_whole_image(image, temperature)
-    extract_text = replace_katex_invalid(output)
-    return extract_text
 
 
 def main():
