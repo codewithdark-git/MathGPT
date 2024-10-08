@@ -1,32 +1,10 @@
 import scipy as sp
 import streamlit as st
 from utils.llm import generate_response
-from utils.symbols import MATH_SYMBOLS
+from utils.helper import math_keyboard, render_latex
 from utils.plotting import plot_function
 from utils.prompting import prompt_SQ, prompt_StepByStep
-import latex2mathml.converter
 
-def render_latex(latex):
-    return latex2mathml.converter.convert(latex)
-
-
-def symbol_button(symbol, key):
-    if st.button(symbol, key=key, help=f"Insert {symbol}"):
-        st.session_state.math_input = st.session_state.get('math_input', '') + symbol
-
-def math_keyboard():
-    st.write("**Math Keyboard**")
-    with st.expander('Math Keyboard Symbols'):
-        categories = list(MATH_SYMBOLS.keys())
-        tabs = st.tabs(categories)
-
-        for tab, category in zip(tabs, categories):
-            with tab:
-                symbols = MATH_SYMBOLS[category]
-                cols = st.columns(8)
-                for i, symbol in enumerate(symbols):
-                    with cols[i % 8]:
-                        symbol_button(symbol, f"{category}_{symbol}")
 
 def math_input_page():
 
