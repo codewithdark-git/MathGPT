@@ -8,6 +8,7 @@ def main():
         .title {
             font-size: 50px;
             font-weight: bold;
+            font-family: 'Dancing Script', cursive;
             color: #4F8BF9;  /* Optional: Change color */
             text-align: center;
             margin-bottom: 0px;
@@ -15,6 +16,8 @@ def main():
         .subtitle {
             font-size: 30px;
             font-weight: lighter;
+            font-family: 'Dancing Script', cursive;
+
             color: #333;  /* Optional: Change color */
             text-align: center;
             margin-top: 0px;
@@ -47,21 +50,21 @@ def main():
 
     # Add the title and subtitle
     st.markdown('<div class="title">MathGPT</div>', unsafe_allow_html=True)
-    st.markdown('<div class="subtitle">Your Advanced Math Problem Solver</div>', unsafe_allow_html=True)
+    st.markdown('<div class="subtitle">Solve Your Advanced Math Problem</div>', unsafe_allow_html=True)
 
     st.divider()
     
     st.write('Choose Your Choice 🪧:')
     col1, col2, col3 = st.columns(3)
     with col1:
-        if st.button('Solve Question With LLM'):
-            st.switch_page("pages/Solve Question.py")
+        if st.button('QuickSolve'):
+            st.switch_page("pages/QuickSolve.py")
     with col2:
-        if st.button('File Question'):
-            st.switch_page("pages/File Process.py")
+        if st.button('Document Solver'):
+            st.switch_page("pages/Document Solver.py")
     with col3:
-        if st.button('White Board'):
-            st.switch_page("pages/White Board.py")
+        if st.button('Math Sketchboard'):
+            st.switch_page("pages/Math Sketchboard.py")
 
     # Overview description
     st.write("""
