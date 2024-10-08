@@ -27,31 +27,40 @@ def prompt_WB(extracted_text):
     """
     return prompt
 
-
-# Function to generate a prompt from text extracted from file/image
-def prompt_FP(extracted_text):
+# Function to generate a prompt from text extracted from file/imag
+def prompt_FP(user_input, extracted_text):
     """
-    Generate a prompt from the mathematical equation or problem extracted from a file or image.
+    Generate a prompt from the mathematical equation or problem based on user input and the extracted text.
 
     Parameters:
+    user_input (str): The user's desired action for the mathematical problem (e.g., Solve, Analyze, Get Hints).
     extracted_text (str): The mathematical equation or problem extracted from a file or image.
 
     Returns:
-    str: The formatted prompt to be sent to the LLM for solving.
+    str: The formatted prompt to be sent to the LLM for solving or analysis based on user input, without using LaTeX format.
     """
+    
     prompt = f"""
-    As a mathematical expert, solve the following mathematical equation or problem extracted from an uploaded document:
+    As a mathematical expert, based on the user's request to "{user_input}" the following mathematical equation or problem extracted from an uploaded document:
 
     {extracted_text}
 
-    Provide a concise, step-by-step solution that includes:
+    Please provide the response **without using LaTeX formatting**.
+
+    If the request is to **Solve**, provide a concise, step-by-step solution that includes:
     1. Interpretation of the problem (if needed)
-    2. Each mathematical step, using appropriate notation
+    2. Each mathematical step, using appropriate notation (but not in LaTeX)
     3. The final, precise answer
 
-    Focus exclusively on mathematical operations and reasoning. Ensure all steps are clear, accurate, and lead logically to the correct solution. Do not include verbose explanations.
+    If the request is to **Analyze**, provide a detailed breakdown of the problem, including key concepts, mathematical operations, and reasoning, without necessarily providing a final answer.
+
+    If the request is for **Hints**, provide a few guiding steps that could help the user solve the problem on their own, but do not reveal the full solution.
+
+    Ensure all steps are clear, accurate, and logically aligned with the requested action. Avoid using LaTeX or unnecessary verbosity.
     """
+    
     return prompt
+
 
 
 # Function to generate a prompt from user input in a text form
