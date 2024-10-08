@@ -86,7 +86,7 @@ pillow==10.4.0
 platformdirs==4.2.2
 prompt_toolkit==3.0.47
 proto-plus==1.24.0
-protobuf>=5.26.1,<6.0dev
+protobuf>=5.26.1,<6.0
 psutil==6.0.0
 pure_eval==0.2.3
 pyarrow==17.0.0
