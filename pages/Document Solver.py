@@ -9,71 +9,25 @@ from utils.load_model import load_modelANDprocessor
 os.environ["PYTORCH_ENABLE_MPS_FALLBACK"] = "1"  # For MPS fallback
 
 
-import io
 import time
-import hashlib
-import pypdfium2
 import pandas as pd
 import streamlit as st
-from PIL import Image
 
-from texify.inference import batch_inference
 from texify.output import replace_katex_invalid
 from streamlit_drawable_canvas import st_canvas
 
 from utils.load_model import load_modelANDprocessor
 from utils.llm import generate_response
 from utils.prompting import prompt_FP
-
-MAX_WIDTH = 800
-MAX_HEIGHT = 1000
-
-
-
-def infer_image(pil_image, bbox, temperature):
-    input_img = pil_image.crop(bbox)
-    model_output = batch_inference([input_img], model, processor, temperature=temperature)
-    return model_output[0]
-
-def open_pdf(pdf_file):
-    stream = io.BytesIO(pdf_file.getvalue())
-    return pypdfium2.PdfDocument(stream)
-
-@st.cache_data()
-def get_page_image(pdf_file, page_num, dpi=96):
-    doc = open_pdf(pdf_file)
-    renderer = doc.render(
-        pypdfium2.PdfBitmap.to_pil,
-        page_indices=[page_num - 1],
-        scale=dpi / 72,
-    )
-    png = list(renderer)[0]
-    png_image = png.convert("RGB")
-    return png_image
-
-@st.cache_data()
-def get_uploaded_image(in_file):
-    return Image.open(in_file).convert("RGB")
-
-def resize_image(pil_image):
-    if pil_image is None:
-        return
-    pil_image.thumbnail((MAX_WIDTH, MAX_HEIGHT), Image.Resampling.LANCZOS)
-
-@st.cache_data()
-def page_count(pdf_file):
-    doc = open_pdf(pdf_file)
-    return len(doc)
-
-def get_canvas_hash(pil_image):
-    return hashlib.md5(pil_image.tobytes()).hexdigest()
-
-@st.cache_data()
-def get_image_size(pil_image):
-    if pil_image is None:
-        return MAX_HEIGHT, MAX_WIDTH
-    height, width = pil_image.height, pil_image.width
-    return height, width
+from utils.helper import (
+    infer_image,
+    get_image_size,
+    get_canvas_hash,
+    get_page_image,
+    get_uploaded_image,
+    page_count,
+    resize_image,
+)
 
 st.set_page_config(layout="wide")
 
@@ -195,5 +149,5 @@ if canvas_result.json_data is not None:
             st.code(inference)
 
         # Display the final solution outside of the expander
-        st.write(f"Solution: {fin_response}")
+        st.markdown(f"Solution: {fin_response}")
         st.divider()
