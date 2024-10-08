@@ -7,6 +7,7 @@ __pycache__/
 *.so
 
 .idea/
+/MathGPT
 
 Hand Solve.py
 
