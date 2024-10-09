@@ -10,9 +10,6 @@ from utils.llm import generate_response
 from utils.prompting import prompt_WB
 
 
-
-
-
 def main():
     st.markdown(
         """
