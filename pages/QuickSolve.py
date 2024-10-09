@@ -86,7 +86,6 @@ def math_input_page():
 
 
 def main():
-    st.set_page_config(page_title="Advanced Math Problem Solver", page_icon="🧮", layout="wide")
 
     st.markdown(
         """
