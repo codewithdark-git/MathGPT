@@ -29,7 +29,7 @@ from utils.helper import (
     resize_image,
 )
 
-st.set_page_config(layout="wide")
+
 
 st.markdown(
         """
