@@ -1,8 +1,3 @@
-# ===========================================
-# IMPORTANT: Do not delete this file.
-# This file is necessary for the application.
-# ===========================================
-
 import os
 
 from utils.load_model import load_modelANDprocessor
