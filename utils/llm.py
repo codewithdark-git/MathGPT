@@ -13,3 +13,4 @@ def generate_response(problem: str) -> str:
     except Exception as e:
         return f"Error: {str(e)}"
 
+# the AI/ML API not Accept more input token its way we used the free llm
