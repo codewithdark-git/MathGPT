@@ -8,6 +8,7 @@ from PIL import Image
 from streamlit_drawable_canvas import st_canvas
 from utils.llm import generate_response
 from utils.prompting import prompt_WB
+from utils.helper import process_whiteboard_image
 
 
 def main():
